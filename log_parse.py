@@ -48,7 +48,7 @@ homeip = r.text
 os.system('grep -v ' + homeip + ' /home/pi/Desktop/canarylogs/pre_upload.csv > /home/pi/Desktop/canarylogs/upload.csv')
 
 #Send it up to AbuseIPDB and call it a day!
-apikey = '23c40bcbd1bc88382025255a454f0d87701e448e4e4a7c7247a5412e81ecbffc4e5902adfeb11795'
+apikey = 'key'
 uploads = 'curl https://api.abuseipdb.com/api/v2/bulk-report -F csv=@/home/pi/Desktop/canarylogs/upload.csv -H \"Key: ' + apikey + '\" -H \"Accept: application/json" >> /home/pi/Desktop/canarylogs/upload_log.json'
 os.system(uploads)
 
