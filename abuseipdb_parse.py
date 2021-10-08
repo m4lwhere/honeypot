@@ -5,14 +5,14 @@ import requests
 
 today = date.today()
 today = today.strftime("%Y%b%d")
-canarydate = today + "_canary.log"
+canarydate = f"{today}_canary.log"
 print(canarydate)
 
 #Clear the temp files incase the script was interrupted earlier
 os.system('rm /home/pi/Desktop/canarylogs/temp.csv /home/pi/Desktop/canarylogs/pre_upload.csv /home/pi/Desktop/canarylogs/upload.csv')
 
 #Setup the command to parse the logs by leaving them zipped, then call with os
-setup = 'cat /home/pi/Desktop/canarylogs/' + canarydate + ' | jq -r "[.src_host, \"14\", .local_time, .dst_port] | @csv" | sort > /home/pi/Desktop/canarylogs/temp.csv'
+setup = f'cat /home/pi/Desktop/canarylogs/{canarydate} | jq -r "[.src_host, \"14\", .local_time, .dst_port] | @csv" | sort > /home/pi/Desktop/canarylogs/temp.csv'
 run = os.system(setup)
 
 #Open the temp csv created with the os call
@@ -36,8 +36,8 @@ for p in range(0,length):
         for i in range(0,length):
             if ip == iplist[i][0]:
                 num = num + 1
-        csvrow = ip + ',14,' + iplist[p][2] + ',\"Scanned ' + str(num) + ' times in the last 24 hours on port ' + iplist[p][3] + '\"'
-        os.system('echo ' + csvrow + ' >> /home/pi/Desktop/canarylogs/pre_upload.csv')
+        csvrow = f'{ip},14,{iplist[p][2]},\"Scanned {str(num)} times in the last 24 hours on port {iplist[p][3]}\"'
+        os.system(f'echo {csvrow} >> /home/pi/Desktop/canarylogs/pre_upload.csv')
         num = 0
     except:
         pass
@@ -45,11 +45,11 @@ for p in range(0,length):
 #Check for home IP and remove it so I'm not reporting myself!! :)
 r = requests.get('https://www.myexternalip.com/raw')
 homeip = r.text
-os.system('grep -v ' + homeip + ' /home/pi/Desktop/canarylogs/pre_upload.csv > /home/pi/Desktop/canarylogs/upload.csv')
+os.system(f'grep -v {homeip} /home/pi/Desktop/canarylogs/pre_upload.csv > /home/pi/Desktop/canarylogs/upload.csv')
 
 #Send it up to AbuseIPDB and call it a day!
 apikey = 'key'
-uploads = 'curl https://api.abuseipdb.com/api/v2/bulk-report -F csv=@/home/pi/Desktop/canarylogs/upload.csv -H \"Key: ' + apikey + '\" -H \"Accept: application/json" >> /home/pi/Desktop/canarylogs/upload_log.json'
+uploads = f'curl https://api.abuseipdb.com/api/v2/bulk-report -F csv=@/home/pi/Desktop/canarylogs/upload.csv -H \"Key: {apikey}\" -H \"Accept: application/json" >> /home/pi/Desktop/canarylogs/upload_log.json'
 os.system(uploads)
 
 #Done :)
